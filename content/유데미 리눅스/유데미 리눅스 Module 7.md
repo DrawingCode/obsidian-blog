@@ -64,3 +64,94 @@
 `ethtool [interface]` : 인터페이스 정보 볼 수 있음.
 
 ![[Pasted image 20260107172115.png]]
+
+
+
+#2026-01-25
+# 156. NIC or Port Bonding
+
+**NIC Bonding이란? (= Network Bonding)**
+: 여러 NIC를 하나의 인터페이스로 묶는 것
+하나의 포트가 죽어도 다른 포트로 연결 가능. 
+가용성 + 대역폭 두 배
+
+ip a 하면 나오는 아래 enp0s3, enp0s8을 하나의 가상 인터페이스 합칠 예정
+
+
+![[Pasted image 20260125183938.png]]
+
+
+
+`modinfo bonding | more` 해서 이미 설치되어 있는지 검사
+![[Pasted image 20260125184115.png]]
+
+
+먼저 하나의 가상 인터페이스를 만들어 준다.
+- `vi /etc/sysconfig/network-scripts/ifcfg-bond0`
+- 아래 내용 입력
+```BASH
+DEVICE=bond0
+TYPE=Bond 
+NAME=bond0 
+BONDING_MASTER=yes 
+BOOTPROTO=none 
+ONBOOT=yes 
+IPADDR=192.168.219.109 # 새로 만들 인터페이스 주소 
+NETMASK=255.255.255.0 
+GATEWAY=192.168.1.1 # 현재 쓰고 있는 게이트웨이 주소
+BONDING_OPTS=”mode=5 miimon=100”
+```
+
+- `miimon`은 몇 millisecond마다 각 slave 인터페이스들의 상태를 점검할지 정하는 것 
+- 여기서 Bonding options는 7개의 모드가 있으며 아래 표와 같다.
+
+
+![[Pasted image 20260125201335.png]]
+
+
+/etc/sysconfig/ifcfg-ens0s3 내용을 모두 지우고 아래와 같이 써준다.
+이때 MAC 주소는 `ip a` 쳐서 나오는 것으로 입력해야 함.
+
+
+![[Pasted image 20260125200244.png]]
+
+enp0s8에 대한 파일도 만들어 주는데, 방금 만든 ens0s3 파일을 복사해준다.
+- `cp ifcfg-enp0s3 ifcfg-enp0s8`
+
+그리고 vi로 열어서 DEVICE 이름과 HWADDR 주소를 enp0s8에 맞게 수정해 준다.
+
+
+`systemctl restart NetworkManager` 로 서비스 재시작 후 `ifconfig`로 인터페이스를 본다.
+(Centos 9 기준)
+
+![[Pasted image 20260125200432.png]]
+
+ssh 접속도 무사히 되는 것 확인.
+![[Pasted image 20260125200531.png]]
+
+
+
+다음 명령어로 bond0의 현재 런타임 상태를 볼 수 있다.
+- `cat /proc/net/bonding/bond0`
+
+![[Pasted image 20260125201657.png]]
+
+엇...근데 enp0s8밖에 안 나온다.
+이럴 때는 아래 명령어를 사용해 bond0의 slave가 누가 있는지 본다.
+- `cat /sys/class/net/bond0/bonding/slaves`
+
+![[Pasted image 20260125203135.png]]
+
+enp0s8만 나오는 걸 보니 enp0s3가 연결이 안 된 것 같다.
+
+음... 재부팅하니까 되긴 됨
+
+![[Pasted image 20260125204117.png]]
+
+
+---
+
+정리
+- `vi /etc/sysconfig/network-scripts/ifcfg-bond0`
+- `vi /etc/sysconfig/network-scripts/ifcfg-enp0s3` / enp0s8도 똑같이 만들어주기
+- `cat /proc/net/bonding/bond0`
