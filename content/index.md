@@ -1,6 +1,5 @@
-하이. 내 블로그.
+---
+title: Gyeong의 Obsidian 블로그입니다.
+---
 
----
-title: Gyeong의 블로그
----
 
