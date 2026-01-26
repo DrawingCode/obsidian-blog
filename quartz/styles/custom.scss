@@ -1,3 +1,16 @@
 @use "./base.scss";
 
 // put your custom CSS here!
+/* quartz/styles/custom.scss */
+
+/* 왼쪽, 오른쪽 사이드바 전체 폰트 변경 */
+.sidebar {
+  font-family: "Pretendard", sans-serif; /* 원하는 폰트로 변경 */
+  font-size: 0.9rem; /* 글씨 크기 조절 */
+}
+
+/* 사이드바의 섹션 제목 (예: Explorer, Graph 등) 스타일 변경 */
+.sidebar h3 {
+  color: "rgb(78, 212, 195)"; /* 제목 색상 변경 (예: 보라색) */
+  font-weight: bold;
+}
