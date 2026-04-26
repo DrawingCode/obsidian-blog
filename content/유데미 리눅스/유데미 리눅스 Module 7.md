@@ -155,3 +155,61 @@ enp0s8만 나오는 걸 보니 enp0s3가 연결이 안 된 것 같다.
 - `vi /etc/sysconfig/network-scripts/ifcfg-bond0`
 - `vi /etc/sysconfig/network-scripts/ifcfg-enp0s3` / enp0s8도 똑같이 만들어주기
 - `cat /proc/net/bonding/bond0`
+
+
+---
+
+#2026-04-26
+# secure SSH 설정
+
+### idle timeout inerval 설정하기
+
+1. root로 로그인
+2. `/etc/ssh/sshd_config` 파일에 다음 문장 추가
+- `ClientAliveInterval 600`
+- `ClientAliveCountmax 0`
+3. 재실행 `# systemctl restart sshd`
+
+
+#### 실습
+
+sshd_config 파일을 따로 복사해서 백업해 두고 
+vi로 들어가서 `shift+G`를 눌러 맨 아랫줄로 내려간 뒤
+아래와 같이 문장을 추가해 준다.
+
+![[Pasted image 20260426183945.png]]
+
+
+
+### root 로그인 비활성화
+
+1. root로 로그인
+2. `/etc/ssh/sshd_config`파일에 들어가서 PermitRootLogin을 yes에서 no로 수정
+- `PermitRootLogin no`
+3. 재시작 `systemctl restart sshd`
+
+
+### empty 패스워드 비활성화
+
+1. root로 로그인
+2. `/etc/ssh/sshd_config` 파일에 들어가서 PermitEmptyPasswords no에 # 삭제
+3. 재시작
+
+![[Pasted image 20260426184449.png]]
+
+
+### 유저의 SSH 접속 제한
+
+1. root로 로그인
+2. `/etc/ssh/sshd_config` 파일에 추가
+- `AllowUsers user1 user2`
+3. 재시작
+
+
+### 포트번호 바꾸기
+
+1. root로 로그인
+2. `/etc/ssh/sshd_config` 파일에서 아래 문장의 # 없애고 포트 번호 바꾸기
+- `# Port 22`
+
+![[Pasted image 20260426185212.png]]
